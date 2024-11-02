@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -19,6 +19,13 @@ public class TeamController {
 
     public static final String PATH_ID = "/{id}";
     public static final String ID = "id";
+    public static final HttpStatus NOT_FOUND = HttpStatus.NOT_FOUND;
+    public static final HttpStatus NO_CONTENT = HttpStatus.NO_CONTENT;
+    public static final HttpStatus OK = HttpStatus.OK;
+    public static final String MENSAJE = "mensaje";
+    public static final String CODIGO = "codigo";
+    public static final String NO_ENCONTRADO = "Equipo no encontrado";
+    public static final ResponseEntity<Object> RESPONSE_NOT_FOUND = ResponseEntity.status(NOT_FOUND).body(Map.of(MENSAJE, NO_ENCONTRADO, CODIGO, NOT_FOUND.value()));
 
 
     @Autowired(required = false)
@@ -27,83 +34,84 @@ public class TeamController {
     @GetMapping()
     public ResponseEntity<List<Team>> getAllTeam() {
         try {
-            List<Team> teams = new ArrayList<Team>();
+            List<Team> teams = new ArrayList<>();
             teams.addAll(teamRepo.findAll());
 
             if (teams.isEmpty()){
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(NO_CONTENT);
             }
 
-            return new ResponseEntity<>(teams, HttpStatus.OK);
+            return new ResponseEntity<>(teams, OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping(PATH_ID)
-    public ResponseEntity<Team> getTeamById(@PathVariable(ID) UUID teamId) {
+    public ResponseEntity<Object> getTeamById(@PathVariable(ID) Long teamId) {
         Optional<Team> teamData = teamRepo.findById(teamId);
 
         if (teamData.isPresent()) {
-            return new ResponseEntity<>(teamData.get(), HttpStatus.OK);
+            return new ResponseEntity<>(teamData, OK);
         }
-
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return RESPONSE_NOT_FOUND;
     }
 
+
     @GetMapping("/buscar")
-    public  ResponseEntity<List<Team>> getTeamsbyName(@RequestParam("nombre") String name) {
+    public  ResponseEntity<Object> getTeamsbyName(@RequestParam("nombre") String nombre) {
         List<Team> teams = new ArrayList<Team>();
         teams.addAll(teamRepo.findAll());
         teams = teams.stream()
-                .filter(team -> team.getName() != null && StringUtils.compareIgnoreCase(team.getName(), name) == 0)
+                .filter(team -> team.getNombre() != null && StringUtils.compareIgnoreCase(team.getNombre(), nombre) == 0)
                 .collect(Collectors.toList());
 
         if (teams.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return RESPONSE_NOT_FOUND;
         }
 
-        return new ResponseEntity<>(teams, HttpStatus.OK);
+        return new ResponseEntity<>(teams, OK);
     }
 
     @PostMapping()
-    public ResponseEntity<Team> addTeam(@RequestBody Team team) {
+    public ResponseEntity<Object> addTeam(@RequestBody Team team) {
         try {
             Team teamSave = teamRepo.save(team);
-            return new ResponseEntity<>(teamSave, HttpStatus.OK);
+            return new ResponseEntity<>(teamSave, OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(Map.of(MENSAJE, "La solicitud es invalida", CODIGO, NOT_FOUND.value()));
         }
     }
 
     @PostMapping(PATH_ID)
-    public ResponseEntity<Team> updateTeamById(@PathVariable(ID) UUID teamId, @RequestBody Team newTeamData) {
+    public ResponseEntity<Team> updateTeamById(@PathVariable(ID) Long teamId, @RequestBody Team newTeamData) {
         Optional<Team> teamData = teamRepo.findById(teamId);
 
         if (teamData.isPresent()) {
             try {
                 Team team = teamData.get();
-                team.setName(newTeamData.getName());
-                team.setLeague(newTeamData.getLeague());
-                team.setCountry(newTeamData.getCountry());
+                team.setNombre(newTeamData.getNombre());
+                team.setLiga(newTeamData.getLiga());
+                team.setPais(newTeamData.getPais());
                 teamRepo.save(team);
                 teamRepo.flush();
-                return new ResponseEntity<>(team, HttpStatus.OK);
+                return new ResponseEntity<>(team, OK);
             } catch (Exception e) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(NOT_FOUND);
             }
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(NOT_FOUND);
     }
 
     @DeleteMapping(PATH_ID)
-    public ResponseEntity<HttpStatus> deleteTeamById(@PathVariable(ID) UUID teamId){
+    public ResponseEntity<Object> deleteTeamById(@PathVariable(ID) Long teamId){
         Optional<Team> teamData = teamRepo.findById(teamId);
 
         if (teamData.isPresent()) {
             teamRepo.delete(teamData.get());
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(NO_CONTENT);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return RESPONSE_NOT_FOUND;
     }
 }

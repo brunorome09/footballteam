@@ -1,52 +1,55 @@
 package com.teammanagement.footballteam.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
-import java.util.UUID;
 
 
 @Entity
 public class Team {
     @Id
-    private UUID team_id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long team_id;
 
-    private String name;
-    private String country;
-    private String league;
+    private String nombre;
+    private String pais;
+    private String liga;
 
-    public Team(String name, String league, String country) {
-        this.name = name;
-        this.country = country;
-        this.league = league;
-        this.team_id = UUID.randomUUID();
+    public Team(String nombre, String liga, String pais) {
+        this.nombre = this.nombre;
+        this.pais = this.pais;
+        this.liga = this.liga;
     }
 
-    public String getName() {
-        return name;
+    public Team(){
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getNombre() {
+        return nombre;
     }
 
-    public String getCountry() {
-        return country;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public String getPais() {
+        return pais;
     }
 
-    public String getLeague() {
-        return league;
+    public void setPais(String pais) {
+        this.pais = pais;
     }
 
-    public void setLeague(String league) {
-        this.league = league;
+    public String getLiga() {
+        return liga;
     }
 
-    public UUID getTeamid() {
+    public void setLiga(String liga) {
+        this.liga = liga;
+    }
+
+    public Long getTeamid() {
         return team_id;
     }
 }
