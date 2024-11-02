@@ -15,7 +15,7 @@ public class Team {
     private String country;
     private String league;
 
-    public Team(Integer team_id, String name, String league, String country) {
+    public Team(String name, String league, String country) {
         this.name = name;
         this.country = country;
         this.league = league;
