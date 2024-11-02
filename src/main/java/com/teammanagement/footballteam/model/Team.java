@@ -1,7 +1,16 @@
-package com.teammanagement.footballteam.team;
+package com.teammanagement.footballteam.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+import java.util.UUID;
+
+
+@Entity
 public class Team {
-    private Integer team_id;
+    @Id
+    private UUID team_id;
+
     private String name;
     private String country;
     private String league;
@@ -10,7 +19,7 @@ public class Team {
         this.name = name;
         this.country = country;
         this.league = league;
-        this.team_id = team_id;
+        this.team_id = UUID.randomUUID();
     }
 
     public String getName() {
@@ -37,11 +46,7 @@ public class Team {
         this.league = league;
     }
 
-    public Integer getTeamid() {
+    public UUID getTeamid() {
         return team_id;
-    }
-
-    public void setTeamid(Integer team_id) {
-        this.team_id = team_id;
     }
 }
