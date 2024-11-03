@@ -12,6 +12,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -36,7 +38,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = TokenUtils.createToken(userDetails.getUsername());
 
-        response.addHeader("Authorization", "Bearer " + token);
+        Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("token", token);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(tokenMap));
         response.getWriter().flush();
 
         super.successfulAuthentication(request, response, chain, authResult);

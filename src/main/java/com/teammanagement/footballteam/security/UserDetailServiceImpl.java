@@ -15,7 +15,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepo userRepo;
 
-    // Método para cargar el usuario único "test"
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByName(username)
