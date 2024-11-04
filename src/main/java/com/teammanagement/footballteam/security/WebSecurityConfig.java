@@ -1,39 +1,29 @@
 package com.teammanagement.footballteam.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 @Configuration
+@EnableWebSecurity
 public class WebSecurityConfig {
 
-    @Autowired
-    private final JWTAuthorizationFilter jwtAuthorizationFilter;
     private final UserDetailsService userDetailsService;
+    private final JWTAuthorizationFilter jwtAuthorizationFilter;
 
-    public WebSecurityConfig(JWTAuthorizationFilter jwtAuthorizationFilter, UserDetailsService userDetailsService) {
-        this.jwtAuthorizationFilter = jwtAuthorizationFilter;
+    public WebSecurityConfig(UserDetailsService userDetailsService, JWTAuthorizationFilter jwtAuthorizationFilter) {
         this.userDetailsService = userDetailsService;
-    }
-
-    @Bean
-    public BasicAuthenticationEntryPoint cbasicAuthenticationEntryPoint() {
-        BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-        entryPoint.setRealmName("footballteam");
-        return entryPoint;
+        this.jwtAuthorizationFilter = jwtAuthorizationFilter;
     }
 
     @Bean
@@ -42,35 +32,30 @@ public class WebSecurityConfig {
         jwtAuthenticationFilter.setAuthenticationManager(authManager);
         jwtAuthenticationFilter.setFilterProcessesUrl("/auth/login");
 
-        BasicAuthenticationEntryPoint basicAuthenticationEntryPoint = cbasicAuthenticationEntryPoint();
-        http
-                .csrf(AbstractHttpConfigurer::disable) // Desactiva CSRF usando lambdas
-                .authorizeHttpRequests(auth -> auth // Configura autorizaciones
-                        .anyRequest().authenticated() // Requiere autenticación para cualquier solicitud
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session // Configura gestión de sesiones
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
-        http.addFilter(jwtAuthenticationFilter).addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.exceptionHandling(exceptionHandling -> exceptionHandling
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-        );
-        return http.build();
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilter(jwtAuthenticationFilter)
+                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder
-                .userDetailsService(userDetailsService) // Configura el servicio de usuarios
-                .passwordEncoder(passwordEncoder()); // Configura el codificador de contraseñas
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
 
-        return authenticationManagerBuilder.build(); // Ahora puedes construir el AuthenticationManager
+        return authBuilder.build();
     }
 }
