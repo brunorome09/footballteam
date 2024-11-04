@@ -67,9 +67,11 @@ public class TeamController {
 
     @PostMapping(PATH_ID)
     public ResponseEntity<Object> updateTeamById(@PathVariable(ID) Long teamId, @RequestBody Team newTeamData) {
-        Optional<Team> updatedTeam = teamService.updateTeam(teamId, newTeamData);
-        return updatedTeam.<ResponseEntity<Object>>map(team -> new ResponseEntity<>(team, OK))
-                .orElse(RESPONSE_NOT_FOUND);
+        Team updatedTeam = teamService.updateTeam(teamId, newTeamData);
+        if (updatedTeam != null) {
+            return new ResponseEntity<>(updatedTeam, OK);
+        }
+        return RESPONSE_NOT_FOUND;
     }
 
     @DeleteMapping(PATH_ID)

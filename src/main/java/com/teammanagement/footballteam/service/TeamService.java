@@ -34,13 +34,17 @@ public class TeamService {
         return teamRepo.save(team);
     }
 
-    public Optional<Team> updateTeam(Long teamId, Team newTeamData) {
-        return teamRepo.findById(teamId).map(team -> {
-            team.setNombre(newTeamData.getNombre());
-            team.setLiga(newTeamData.getLiga());
-            team.setPais(newTeamData.getPais());
-            return teamRepo.save(team);
-        });
+    public Team updateTeam(Long teamId, Team newTeamData) {
+        Optional<Team> teamOptional = teamRepo.findById(teamId);
+        if (teamOptional.isPresent()) {
+                Team team = teamOptional.get();
+                team.setNombre(newTeamData.getNombre());
+                team.setLiga(newTeamData.getLiga());
+                team.setPais(newTeamData.getPais());
+                teamRepo.save(team);
+                return team;
+            }
+        return null;
     }
 
     public boolean deleteTeam(Long teamId) {
