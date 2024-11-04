@@ -18,7 +18,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class TeamServiceTest {
-    public static final String INDEPENDIENTE = "Independiente";
     @Mock
     private TeamRepo teamRepo;
 
@@ -28,6 +27,8 @@ public class TeamServiceTest {
     private Team team;
     private Team newTeam;
     private static final Long TEAMID = 100L;
+    public static final String INDEPENDIENTE = "Independiente";
+    public static final String REAL_MADRID = "Real Madrid";
 
     @BeforeEach
     public void setUp() {
@@ -39,21 +40,28 @@ public class TeamServiceTest {
         team.setPais("Argentina");
 
         newTeam = new Team();
-        newTeam.setNombre("Real Madrid");
+        newTeam.setNombre(REAL_MADRID);
         newTeam.setLiga("La Liga");
         newTeam.setPais("España");
     }
 
     @Test
     public void testGetAllTeams(){
-        when(teamService.getAllTeams()).thenReturn(Arrays.asList(team));
-        assertNotNull(teamService.getAllTeams());
+        when(teamService.getAllTeams()).thenReturn(Arrays.asList(team, newTeam));
+        List<Team> result = teamService.getAllTeams();
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(INDEPENDIENTE, result.get(0).getNombre());
+        assertEquals(REAL_MADRID, result.get(1).getNombre());
     }
 
     @Test
     public void testSaveTeam(){
         when(teamService.saveTeam(any(Team.class))).thenReturn(team);
-        assertNotNull(teamService.saveTeam(new Team()));
+        Team result = teamService.saveTeam(team);
+        assertNotNull(result);
+        assertEquals(INDEPENDIENTE, result.getNombre());
+        verify(teamRepo).save(team);
     }
 
     @Test
@@ -82,7 +90,7 @@ public class TeamServiceTest {
         verify(teamRepo).save(any(Team.class));
 
         assertNotNull(updatedTeam);
-        assertEquals("Real Madrid", updatedTeam.getNombre());
+        assertEquals(REAL_MADRID, updatedTeam.getNombre());
         assertEquals("La Liga", updatedTeam.getLiga());
         assertEquals("España", updatedTeam.getPais());
     }
