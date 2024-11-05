@@ -1,6 +1,7 @@
 package com.teammanagement.footballteam.service;
 
 
+import com.teammanagement.footballteam.exception.ResourceNotFoundException;
 import com.teammanagement.footballteam.model.Team;
 import com.teammanagement.footballteam.repo.TeamRepo;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,18 +123,25 @@ public class TeamServiceTest {
         assertFalse(result.isPresent());
     }
 
+
     @Test
     public void testGetTeamsByName() {
-        when(teamRepo.findAll()).thenReturn(Arrays.asList(team, newTeam));
+        Team team = new Team();
+        team.setNombre(INDEPENDIENTE);
+        when(teamRepo.findByNombreIgnoreCase(INDEPENDIENTE)).thenReturn(Arrays.asList(team));
+
         List<Team> result = teamService.getTeamsByName(INDEPENDIENTE);
+
         assertEquals(1, result.size());
         assertEquals(INDEPENDIENTE, result.get(0).getNombre());
     }
 
     @Test
     public void testGetTeamsByNameNoMatch() {
-        when(teamRepo.findAll()).thenReturn(Arrays.asList(team, newTeam));
-        List<Team> result = teamService.getTeamsByName("Barcelona");
-        assertTrue(result.isEmpty());
+        when(teamRepo.findByNombreIgnoreCase("Barcelona")).thenReturn(Collections.emptyList());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            teamService.getTeamsByName("Barcelona");
+        });
     }
 }
