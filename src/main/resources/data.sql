@@ -23,3 +23,4 @@ INSERT INTO team (team_id, nombre, pais, liga) VALUES (21, 'SL Benfica', 'Portug
 INSERT INTO team (team_id, nombre, pais, liga) VALUES (22, 'Besiktas JK', 'Turquía', 'Süper Lig');
 INSERT INTO team (team_id, nombre, pais, liga) VALUES (23, 'SSC Napoli', 'Italia', 'Serie A');
 INSERT INTO team (team_id, nombre, pais, liga) VALUES (24, 'Atlético Madrid', 'España', 'La Liga');
+ALTER TABLE team ALTER COLUMN team_id RESTART WITH (SELECT MAX(team_id) + 1 FROM team);
