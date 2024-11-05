@@ -72,14 +72,14 @@ public class TeamController {
             return new ResponseEntity<>(savedTeam, OK);
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of(MENSAJE, "El equipo ya existe o viola una restricción de integridad", CODIGO, HttpStatus.CONFLICT.value()));
+                    .body(Map.of(MENSAJE, "Viola una restricción de integridad", CODIGO, HttpStatus.CONFLICT.value()));
         } catch (Exception e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(Map.of(MENSAJE, "La solicitud es invalida", CODIGO, NOT_FOUND.value()));
         }
     }
 
-    @PostMapping(PATH_ID)
+    @PutMapping(PATH_ID)
     public ResponseEntity<Object> updateTeamById(@PathVariable(ID) Long teamId, @Valid @RequestBody Team newTeamData, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
