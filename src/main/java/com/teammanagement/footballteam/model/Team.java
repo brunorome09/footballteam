@@ -1,5 +1,6 @@
 package com.teammanagement.footballteam.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,18 +9,23 @@ import jakarta.validation.constraints.NotBlank;
 
 
 @Entity
+@Schema(description = "Representa un equipo de fútbol")
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long team_id;
 
     @NotBlank(message = "El nombre del equipo no puede estar vacio")
+    @Schema(example = "Real Madrid")
     private String nombre;
 
     @NotBlank(message = "El pais del equipo no puede estar vacio")
+    @Schema(example = "España")
     private String pais;
 
     @NotBlank(message = "La liga del equipo no puede estar vacia")
+    @Schema(example = "La Liga")
     private String liga;
 
     public Team(String nombre, String liga, String pais) {

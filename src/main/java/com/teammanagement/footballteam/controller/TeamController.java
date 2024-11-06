@@ -3,6 +3,7 @@ package com.teammanagement.footballteam.controller;
 import com.teammanagement.footballteam.exception.ResourceNotFoundException;
 import com.teammanagement.footballteam.model.Team;
 import com.teammanagement.footballteam.service.TeamService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -24,6 +25,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/equipos")
 @Tag(name = "Equipos", description = "API para gestionar equipos de fútbol")
+@SecurityRequirement(name = "bearerAuth")
 public class TeamController {
 
     private static final String PATH_ID = "/{id}";
@@ -43,7 +45,8 @@ public class TeamController {
 
     @GetMapping
     @Operation(summary = "Obtener todos los equipos", description = "Retorna una lista de todos los equipos de fútbol cargados en la base de datos")
-    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class,
+            requiredProperties = {"nombre", "pais", "liga"})))
     @ApiResponse(responseCode = "204", description = "No hay equipos disponibles")
     public ResponseEntity<List<Team>> getAllTeams() {
         List<Team> teams = teamService.getAllTeams();
@@ -55,7 +58,8 @@ public class TeamController {
 
     @GetMapping(PATH_ID)
     @Operation(summary = "Obtener un equipo por ID", description = "Retorna un equipo de fútbol basado en su ID")
-    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class,
+            requiredProperties = {"nombre", "pais", "liga"})))
     @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
     public ResponseEntity<Object> getTeamById(@PathVariable(ID) Long teamId) {
         Optional<Team> teamData = teamService.getTeamById(teamId);
@@ -65,7 +69,8 @@ public class TeamController {
 
     @GetMapping("/buscar")
     @Operation(summary = "Buscar equipos por nombre", description = "Retorna una lista de equipos que coinciden con el nombre proporcionado")
-    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class,
+            requiredProperties = {"nombre", "pais", "liga"})))
     @ApiResponse(responseCode = "404", description = "No se encontraron equipos")
     public ResponseEntity<Object> getTeamsByName(@RequestParam("nombre") String nombre) {
         try {
@@ -78,7 +83,9 @@ public class TeamController {
 
     @PostMapping
     @Operation(summary = "Agregar un nuevo equipo", description = "Crea un nuevo equipo de fútbol")
-    @ApiResponse(responseCode = "201", description = "Equipo creado exitosamente", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "201", description = "Equipo creado exitosamente",
+            content = @Content(schema = @Schema(implementation = Team.class,
+                    requiredProperties = {"nombre", "pais", "liga"})))
     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
     @ApiResponse(responseCode = "409", description = "Conflicto de integridad de datos")
     public ResponseEntity<Object> addTeam(@Valid @RequestBody Team team, BindingResult bindingResult) {
@@ -100,7 +107,8 @@ public class TeamController {
 
     @PutMapping(PATH_ID)
     @Operation(summary = "Actualizar un equipo", description = "Actualiza los datos de un equipo existente")
-    @ApiResponse(responseCode = "200", description = "Equipo actualizado exitosamente", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "200", description = "Equipo actualizado exitosamente",content = @Content(schema = @Schema(implementation = Team.class,
+            requiredProperties = {"nombre", "pais", "liga"})))
     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
     @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
     @ApiResponse(responseCode = "409", description = "Conflicto de integridad de datos")
