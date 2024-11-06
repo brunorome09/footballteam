@@ -6,6 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/equipos")
+@Tag(name = "Equipos", description = "API para gestionar equipos de fútbol")
 public class TeamController {
 
     private static final String PATH_ID = "/{id}";
@@ -28,8 +34,10 @@ public class TeamController {
     @Autowired(required = false)
     private TeamService teamService;
 
-
     @GetMapping
+    @Operation(summary = "Obtener todos los equipos", description = "Retorna una lista de todos los equipos de fútbol cargados en la base de datos")
+    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "204", description = "No hay equipos disponibles")
     public ResponseEntity<List<Team>> getAllTeams() {
         List<Team> teams = teamService.getAllTeams();
         if (teams.isEmpty()) {
@@ -39,6 +47,9 @@ public class TeamController {
     }
 
     @GetMapping(PATH_ID)
+    @Operation(summary = "Obtener un equipo por ID", description = "Retorna un equipo de fútbol basado en su ID")
+    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
     public ResponseEntity<Object> getTeamById(@PathVariable(ID) Long teamId) {
         Optional<Team> teamData = teamService.getTeamById(teamId);
         return teamData.<ResponseEntity<Object>>map(team -> new ResponseEntity<>(team, OK))
@@ -46,6 +57,9 @@ public class TeamController {
     }
 
     @GetMapping("/buscar")
+    @Operation(summary = "Buscar equipos por nombre", description = "Retorna una lista de equipos que coinciden con el nombre proporcionado")
+    @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "404", description = "No se encontraron equipos")
     public ResponseEntity<Object> getTeamsByName(@RequestParam("nombre") String nombre) {
         List<Team> teams = teamService.getTeamsByName(nombre);
         if (teams.isEmpty()) {
@@ -55,6 +69,10 @@ public class TeamController {
     }
 
     @PostMapping
+    @Operation(summary = "Agregar un nuevo equipo", description = "Crea un nuevo equipo de fútbol")
+    @ApiResponse(responseCode = "200", description = "Equipo creado exitosamente", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+    @ApiResponse(responseCode = "409", description = "Conflicto de integridad de datos")
     public ResponseEntity<Object> addTeam(@RequestBody Team team) {
         try {
             Team savedTeam = teamService.saveTeam(team);
@@ -65,7 +83,12 @@ public class TeamController {
         }
     }
 
-    @PostMapping(PATH_ID)
+    @PutMapping(PATH_ID)
+    @Operation(summary = "Actualizar un equipo", description = "Actualiza los datos de un equipo existente")
+    @ApiResponse(responseCode = "200", description = "Equipo actualizado exitosamente", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+    @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
+    @ApiResponse(responseCode = "409", description = "Conflicto de integridad de datos")
     public ResponseEntity<Object> updateTeamById(@PathVariable(ID) Long teamId, @RequestBody Team newTeamData) {
         Team updatedTeam = teamService.updateTeam(teamId, newTeamData);
         if (updatedTeam != null) {
@@ -75,6 +98,9 @@ public class TeamController {
     }
 
     @DeleteMapping(PATH_ID)
+    @Operation(summary = "Eliminar un equipo", description = "Elimina un equipo existente por su ID")
+    @ApiResponse(responseCode = "204", description = "Equipo eliminado exitosamente")
+    @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
     public ResponseEntity<Object> deleteTeamById(@PathVariable(ID) Long teamId) {
         boolean isDeleted = teamService.deleteTeam(teamId);
         if (isDeleted) {
