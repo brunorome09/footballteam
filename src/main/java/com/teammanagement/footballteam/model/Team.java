@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 
 
 @Entity
@@ -12,8 +13,13 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long team_id;
 
+    @NotBlank(message = "El nombre del equipo no puede estar vacio")
     private String nombre;
+
+    @NotBlank(message = "El pais del equipo no puede estar vacio")
     private String pais;
+
+    @NotBlank(message = "La liga del equipo no puede estar vacia")
     private String liga;
 
     public Team(String nombre, String liga, String pais) {
