@@ -26,6 +26,7 @@ public class TeamController {
     private static final HttpStatus NOT_FOUND = HttpStatus.NOT_FOUND;
     private static final HttpStatus NO_CONTENT = HttpStatus.NO_CONTENT;
     private static final HttpStatus OK = HttpStatus.OK;
+    private static final HttpStatus CREATED = HttpStatus.CREATED;
     private static final String MENSAJE = "mensaje";
     private static final String CODIGO = "codigo";
     private static final String NO_ENCONTRADO = "Equipo no encontrado";
@@ -70,13 +71,13 @@ public class TeamController {
 
     @PostMapping
     @Operation(summary = "Agregar un nuevo equipo", description = "Crea un nuevo equipo de fútbol")
-    @ApiResponse(responseCode = "200", description = "Equipo creado exitosamente", content = @Content(schema = @Schema(implementation = Team.class)))
+    @ApiResponse(responseCode = "201", description = "Equipo creado exitosamente", content = @Content(schema = @Schema(implementation = Team.class)))
     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
     @ApiResponse(responseCode = "409", description = "Conflicto de integridad de datos")
     public ResponseEntity<Object> addTeam(@RequestBody Team team) {
         try {
             Team savedTeam = teamService.saveTeam(team);
-            return new ResponseEntity<>(savedTeam, OK);
+            return new ResponseEntity<>(savedTeam, CREATED);
         } catch (Exception e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(Map.of(MENSAJE, "La solicitud es invalida", CODIGO, NOT_FOUND.value()));
